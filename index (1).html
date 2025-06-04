@@ -1,0 +1,147 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Match - Hassaan Ahmed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .font-inter {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-inter">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <!-- Profile Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+      <h1 class="text-2xl font-bold mb-4">My Portfolio</h1>
+      <h2 class="text-xl font-semibold">About Me</h2>
+      <p class="text-gray-700 mb-4">
+        I'm Hassaan Ahmed, a Senior Product Manager with over 5 years of experience in product and program management, specializing in B2C and B2B solutions. At Beam AI (Dec 2022 - Present), I’ve led AI-enabling transformations across technology, automotive, finance, and retail industries, reducing turnaround times by 20% and improving product efficiency by 18%. As a Program Manager at Swvl (Feb 2022 - Nov 2022), I productized ride tracking for a B2B SaaS platform, improving efficiency by 30%, scaled operations in Tier 2 cities by 15%, and boosted NPS by 5 points through data-driven insights. At Daraz, Alibaba Group (Oct 2020 - Feb 2022), I enhanced partner onboarding by 25% and launched a multi-language platform, increasing adoption by 20%. I started at Khaadi (July 2019 - Oct 2020), optimizing operations and boosting conversion rates by 8%. Since Nov 2022, I’ve consulted for fintech and e-commerce startups, aiding in AI enablement, product strategy, and market expansion. I hold a PMP (2024), an MBA, and a BBA from the Institute of Business Administration, Karachi.
+      </p>
+    </div>
+
+    <!-- Job Description Input -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+      <h2 class="text-xl font-semibold mb-4">Ask a Question to Check How I Fit</h2>
+      <textarea id="jobDescription" class="w-full p-2 border rounded-md" rows="5" placeholder="Paste the job description here..."></textarea>
+      <button id="submitBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Evaluate Fit</button>
+    </div>
+
+    <!-- Response Section -->
+    <div id="response" class="bg-white p-6 rounded-lg shadow-md hidden">
+      <h2 class="text-xl font-semibold mb-4">Fit Evaluation</h2>
+      <p id="responseText" class="text-gray-700"></p>
+    </div>
+  </div>
+
+  <script>
+    const profileData = {
+      name: "Hassaan Ahmed",
+      role: "Senior Product Manager",
+      skills: [
+        "Product Development", "Agile Methodologies", "Roadmap Planning",
+        "Data Analytics (Power BI, SQL, Airtable)", "Enterprise Solutions",
+        "Stakeholder Management", "Product Management", "Lean Methodologies",
+        "Technical Collaboration (APIs, System Architecture)", "Product Design (Figma, Balsamiq, Linear)",
+        "Process Automation", "Cohort Analysis", "A/B Testing", "Program Management",
+        "Impact Analysis (Adaptation and Mitigation)", "Languages (English, Arabic, Urdu, Sindhi)"
+      ],
+      experience: "Over 5 years in product and program management. At Beam AI (Sr. Product Manager, Dec 2022 - Present), led AI-enabling transformations for clients in technology, automotives, finance, and retail, reducing turnaround time by 20%, improving product efficiency by 18%, and increasing platform sign-ups by 30%. Since Nov 2022, consulted for fintech and e-commerce startups, leading AI enablement, product strategy, and market feasibility analysis targeting a $200M opportunity. At Swvl (Program Manager, Feb 2022 - Nov 2022), productized ride tracking for a B2B SaaS platform, improving efficiency by 30%, scaled operations in Tier 2 cities by 15%, and boosted NPS by 5 points. At Daraz, Alibaba Group (Product Manager, Oct 2020 - Feb 2022), cut partner onboarding timelines by 25%, enabled $200K in sales growth, and expanded user adoption by 20% through localization. At Khaadi (Management Trainee, July 2019 - Oct 2020), optimized in-store operations, increasing stock liquidation by 10% and conversion rates by 8%. Education: PMP (2024), MBA, and BBA from Institute of Business Administration, Karachi.",
+      projects: [
+        { name: "Pre-created Generative AI Workflow Library", description: "AI-powered engine auto-generates and customizes workflow templates.", link: "https://hassaanahmed.designfolio.me/project/680fc49467219879a3b669c9" },
+        { name: "SWVL FleetOps Management", description: "Centralized scheduling, monitoring, and fleet operations, improving efficiency.", link: "https://hassaanahmed.designfolio.me/project/680fc96067219879a3b6730f" },
+        { name: "Multi-Language Marketplace Expansion", description: "Localized platform UI and flows, driving a 20% uptick in non-metro areas.", link: "https://hassaanahmed.designfolio.me/project/6810d27467219879a3b77dab" }
+      ]
+    };
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const jobDescription = document.getElementById("jobDescription").value;
+      if (!jobDescription) {
+        alert("Please enter a job description.");
+        return;
+      }
+
+      const prompt = `
+        Evaluate how well the following candidate fits the job description provided.
+        Candidate Profile:
+        Name: ${profileData.name}
+        Role: ${profileData.role}
+        Skills: ${profileData.skills.join(", ")}
+        Experience: ${profileData.experience}
+        Projects: ${profileData.projects.map(p => `${p.name}: ${p.description} (${p.link})`).join("; ")}
+
+        Job Description:
+        ${jobDescription}
+
+        Provide a concise response (max 200 words) explaining the candidate's fit for the role, highlighting relevant skills, experience, and projects.
+      `;
+
+      try {
+        const response = await fetch("https://api.x.ai/v1/grok", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer xai-fbrmrVEt5oSEkxLMpOUz5HuVM8lG03ehdQmck7TAL1un4d402BPiLmFJGIgDGL3mQ7naMyz0at74MCL6"
+          },
+          body: JSON.stringify({
+            model: "grok-3",
+            prompt: prompt,
+            max_tokens: 300
+          })
+        });
+
+        const data = await response.json();
+        const responseText = data.choices[0].text.trim();
+        document.getElementById("responseText").innerText = responseText;
+        document.getElementById("response").classList.remove("hidden");
+      } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("responseText").innerText = "Error evaluating fit. Please try again.";
+        document.getElementById("response").classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
